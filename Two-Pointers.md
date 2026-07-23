@@ -58,9 +58,16 @@ def fast_slow(arr):
 5. Reverse String
 
 **Medium**
-1. Container With Most Water
+1. Container With Most Water ✅
 2. 3Sum
 3. Trapping Rain Water
+
+**Sliding Window (bridge from Two Pointers)**
+1. Minimum Size Subarray Sum ✅
+2. Minimum Contiguous Houses (multi-test-case variant) ✅
+
+**Bonus (different pattern — Prefix Sum)**
+1. Range Sum Query ✅
 
 ---
 
@@ -138,3 +145,100 @@ class Solution:
             left += 1
             right -= 1
 ```
+
+### 6. Container With Most Water
+```python
+class Solution:
+    def maxArea(self, h: List[int]) -> int:
+        left = 0
+        right = len(h) - 1
+        max_a = 0
+        while left < right:
+            min_h = min(h[left], h[right])
+            current_area = min_h * (right - left)
+            max_a = max(current_area, max_a)
+            if h[left] < h[right]:
+                left += 1
+            else:
+                right -= 1
+        return max_a
+```
+Key rule: move only the pointer at the **shorter** height. Moving the taller one can never improve the area — width shrinks and the limiting height can't increase.
+
+### 7. Minimum Size Subarray Sum
+```python
+n, t = map(int, input().split())
+arr = list(map(int, input().strip().split()))
+
+left = 0
+right = 0
+sum_t = 0
+count = float('inf')
+
+while right < n:
+    sum_t += arr[right]
+    right += 1
+    while sum_t >= t:
+        curr_len = right - left
+        count = min(count, curr_len)
+        sum_t -= arr[left]
+        left += 1
+
+print(0 if count == float('inf') else count)
+```
+Sliding window: `right` expands the window, `left` shrinks it once the sum condition is met. `curr_len = right - left` (not `+1`) since `right` has already moved past the last included index by the time the check runs.
+
+### 8. Minimum Contiguous Houses (multi-test-case variant)
+```python
+n = int(input())
+arr = list(map(int, input().strip().split()))
+tc = int(input())
+
+for i in range(tc):
+    target = int(input())
+
+    left = 0
+    right = 0
+    sum_t = 0
+    count = float('inf')
+
+    while right < n:
+        sum_t += arr[right]
+        right += 1
+        while sum_t >= target:
+            curr_len = right - left
+            count = min(count, curr_len)
+            sum_t -= arr[left]
+            left += 1
+
+    print(0 if count == float('inf') else count)
+```
+Same sliding window as Min Size Subarray Sum, but reset `left`, `right`, `sum_t`, `count` fresh for **each** test case's target.
+
+### Bonus: Range Sum Query (Prefix Sum — different pattern)
+```python
+n, q = map(int, input().split())
+arr = list(map(int, input().strip().split()))
+pre = [0] * n
+pre[0] = arr[0]
+for i in range(1, n):
+    pre[i] = pre[i - 1] + arr[i]
+
+for i in range(q):
+    l, r = map(int, input().split())
+    l -= 1
+    r -= 1
+    if l == 0:
+        curr_sum = pre[r]
+    else:
+        curr_sum = pre[r] - pre[l - 1]
+    print(curr_sum)
+```
+`pre[i]` = sum of `arr[0..i]` inclusive. For 1-indexed query `[L, R]`: answer = `pre[R-1] - pre[L-2]`, i.e. `pre[r] - pre[l-1]` after converting `l, r` to 0-indexed — special-cased when `l == 0` since `pre[-1]` would wrap around incorrectly.
+
+---
+
+## Key Takeaways
+- **Check-before-store vs store-before-check:** check-before-store when looking for something seen in a *previous* iteration (Two Sum complement, Contains Duplicate). Store-before-check when checking the *current* element's own running count (element appearing >2 times, Top K, Valid Anagram).
+- **Swap vs overwrite:** when the displaced value still matters (e.g. Move Zeroes), swap — don't just overwrite, or you lose data.
+- Two pointers moving in the *same* direction (slow/fast) vs *opposite* ends are two distinct templates — pick based on whether the array is sorted and what relationship you're checking.

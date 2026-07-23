@@ -1,0 +1,220 @@
+# Pattern 1: Hashmaps (Dictionary)
+
+## Mental Model
+You need fast lookup. Scanning an array repeatedly is O(n²). Hashmap lookup is O(1).
+Whenever you catch yourself thinking "I need to check if I've seen something before" — hashmap.
+
+## When to Recognize It
+- "count", "frequency", "duplicate", "anagram", "most frequent"
+- "two sum", "pair", "complement", "difference equals"
+- "subarray sum equals", "prefix sum"
+- "longest substring without repeating"
+
+## Core Templates
+
+### Template 1 — Frequency Count
+Use when the problem asks about how many times something appears.
+
+```python
+def frequency(arr):
+    freq = {}
+    for num in arr:
+        freq[num] = freq.get(num, 0) + 1
+    return freq
+```
+`freq[num] = freq.get(num, 0) + 1` — if key exists, increment. If not, start at 1.
+
+### Template 2 — Seen Before
+Use when the problem asks you to find two things that together hit a target.
+
+```python
+def seen_before(arr, target):
+    seen = {}
+    for i, num in enumerate(arr):
+        complement = target - num
+        if complement in seen:
+            return [seen[complement], i]
+        seen[num] = i
+    return []
+```
+
+**Key distinction — check-before-store vs store-before-check:**
+- **Check before store:** looking for something seen in a *previous* iteration (Two Sum complement, Contains Duplicate).
+- **Store before check:** checking the *current* element's own running count (element appearing >2 times, Top K, Valid Anagram).
+
+---
+
+## Problem List
+1. Two Sum
+2. Contains Duplicate
+3. Valid Anagram
+4. Group Anagrams
+5. Top K Frequent Elements
+6. Longest Consecutive Sequence
+7. First Unique Character in a String
+8. Ransom Note
+9. Subarray Sum Equals K
+10. Longest Substring Without Repeating Characters
+11. Continuous Subarray Sum
+12. Element Appearing More Than Twice (custom)
+
+---
+
+## Solutions
+
+### 1. Two Sum
+```python
+def twoSum(self, nums: List[int], target: int) -> List[int]:
+    seen = {}
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in seen:
+            return [seen[complement], i]
+        seen[num] = i
+    return []
+```
+
+### 2. Contains Duplicate
+```python
+def containsDuplicate(self, nums: List[int]) -> bool:
+    seen = set()
+    for num in nums:
+        if num in seen:
+            return True
+        seen.add(num)
+    return False
+```
+
+### 3. Valid Anagram
+```python
+def isAnagram(self, s: str, t: str) -> bool:
+    freq1 = {}
+    freq2 = {}
+    for ch in s:
+        freq1[ch] = freq1.get(ch, 0) + 1
+    for ch in t:
+        freq2[ch] = freq2.get(ch, 0) + 1
+    return freq1 == freq2
+```
+
+### 4. Group Anagrams
+```python
+def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+    freq = {}
+    for word in strs:
+        key = "".join(sorted(word))
+        if key not in freq:
+            freq[key] = []
+        freq[key].append(word)
+    return list(freq.values())
+```
+
+### 5. Top K Frequent Elements
+```python
+def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+    freq = {}
+    for num in nums:
+        freq[num] = freq.get(num, 0) + 1
+    return sorted(freq, key=lambda num: freq[num], reverse=True)[:k]
+```
+
+### 6. Longest Consecutive Sequence
+```python
+def longestConsecutive(self, nums: List[int]) -> int:
+    seen = set(nums)
+    lo = 0
+    for num in seen:
+        if num - 1 not in seen:
+            le = 1
+            while num + le in seen:
+                le += 1
+            lo = max(le, lo)
+    return lo
+```
+
+### 7. First Unique Character in a String
+```python
+def firstUniqChar(self, s: str) -> int:
+    seen = {}
+    for ch in s:
+        seen[ch] = seen.get(ch, 0) + 1
+    for i, ch in enumerate(s):
+        if seen[ch] == 1:
+            return i
+    return -1
+```
+
+### 8. Ransom Note
+```python
+def canConstruct(self, r: str, m: str) -> bool:
+    fre2 = {}
+    for ch in m:
+        fre2[ch] = fre2.get(ch, 0) + 1
+    for ch in r:
+        if ch not in fre2 or fre2[ch] == 0:
+            return False
+        fre2[ch] -= 1
+    return True
+```
+
+### 9. Subarray Sum Equals K
+```python
+def subarraySum(self, nums: List[int], k: int) -> int:
+    seen = {0: 1}
+    count = 0
+    runsum = 0
+    for num in nums:
+        runsum += num
+        if runsum - k in seen:
+            count += seen[runsum - k]
+        seen[runsum] = seen.get(runsum, 0) + 1
+    return count
+```
+
+### 10. Longest Substring Without Repeating Characters
+```python
+def lengthOfLongestSubstring(self, s: str) -> int:
+    seen = {}
+    max_len = 0
+    s_index = 0
+    for i, ch in enumerate(s):
+        if ch in seen and seen[ch] >= s_index:
+            s_index = seen[ch] + 1
+        seen[ch] = i
+        max_len = max(max_len, i - s_index + 1)
+    return max_len
+```
+
+### 11. Continuous Subarray Sum
+```python
+def checkSubarraySum(self, nums: List[int], k: int) -> bool:
+    seen = {0: -1}
+    sum0 = 0
+    for i, num in enumerate(nums):
+        sum0 += num
+        rem = sum0 % k
+        if rem in seen:
+            if i - seen[rem] >= 2:
+                return True
+        else:
+            seen[rem] = i
+    return False
+```
+
+### 12. Element Appearing More Than Twice (custom)
+```python
+def findRepeated(arr):
+    dic = {}
+    for num in arr:
+        dic[num] = dic.get(num, 0) + 1
+        if dic[num] > 2:
+            return num
+    return False
+```
+
+---
+
+## Key Takeaways
+- **Check-before-store vs store-before-check** is the recurring bug source — always ask "am I checking something from the past, or checking what I just updated right now?"
+- Sets (`set()`) are the right tool when you only need existence checks, not counts.
+- Prefix-sum-style hashmap problems (Subarray Sum Equals K, Continuous Subarray Sum) store the *first-seen index or count of a running value*, not the raw array elements — a distinct sub-pattern worth recognizing on its own.

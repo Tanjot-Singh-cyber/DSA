@@ -58,16 +58,16 @@ def fast_slow(arr):
 5. Reverse String
 
 **Medium**
-1. Container With Most Water ✅
+1. Container With Most Water 
 2. 3Sum
 3. Trapping Rain Water
 
 **Sliding Window (bridge from Two Pointers)**
-1. Minimum Size Subarray Sum ✅
-2. Minimum Contiguous Houses (multi-test-case variant) ✅
+1. Minimum Size Subarray Sum 
+2. Minimum Contiguous Houses (multi-test-case variant) 
 
 **Bonus (different pattern — Prefix Sum)**
-1. Range Sum Query ✅
+1. Range Sum Query 
 
 ---
 
@@ -214,6 +214,64 @@ for i in range(tc):
     print(0 if count == float('inf') else count)
 ```
 Same sliding window as Min Size Subarray Sum, but reset `left`, `right`, `sum_t`, `count` fresh for **each** test case's target.
+
+### 9. 3Sum
+```python
+class Solution:
+    def threeSum(self, nums: list[int]) -> list[list[int]]:
+        nums.sort()
+        result = []
+
+        for i in range(len(nums)):
+            if i > 0 and nums[i] == nums[i-1]:
+                continue
+
+            left = i + 1
+            right = len(nums) - 1
+            target = -nums[i]
+
+            while left < right:
+                total = nums[left] + nums[right]
+                if total < target:
+                    left += 1
+                elif total > target:
+                    right -= 1
+                else:
+                    result.append([nums[i], nums[left], nums[right]])
+                    left += 1
+                    right -= 1
+                    while left < right and nums[left] == nums[left - 1]:
+                        left += 1
+                    while left < right and nums[right] == nums[right + 1]:
+                        right -= 1
+        return result
+```
+Sort first, then fix one element (`nums[i]`) and run Two Sum II on the rest for `target = -nums[i]`. Skip duplicate `i` values, and skip duplicate `left`/`right` values after a match to avoid repeated triplets.
+
+### 10. Trapping Rain Water
+```python
+class Solution:
+    def trap(self, h: List[int]) -> int:
+        l = 0
+        r = len(h) - 1
+        lmax = 0
+        rmax = 0
+        s = 0
+
+        while l < r:
+            lmax = max(lmax, h[l])
+            rmax = max(rmax, h[r])
+
+            if lmax < rmax:
+                s += lmax - h[l]
+                l += 1
+            else:
+                s += rmax - h[r]
+                r -= 1
+
+        return s
+```
+Water at a position is bounded by `min(left_max, right_max) - height`. Whichever side has the smaller max so far is guaranteed correct regardless of unseen walls in between — process only that side, one position per iteration, then move only that pointer.
 
 ### Bonus: Range Sum Query (Prefix Sum — different pattern)
 ```python

@@ -90,8 +90,8 @@ class Solution:
 ```
 3. First Bad Version
 
-# The isBadVersion API is already defined for you.
-# def isBadVersion(version: int) -> bool:
+### The isBadVersion API is already defined for you.
+### def isBadVersion(version: int) -> bool:
 ```python3
 class Solution:
     def firstBadVersion(self, n: int) -> int:

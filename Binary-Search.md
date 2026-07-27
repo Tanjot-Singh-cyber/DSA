@@ -140,4 +140,138 @@ class Solution:
                     r = m-1
             return False
 ```
+
+6. Search in Rotated Sorted Array
+```python3
+class Solution:
+    def search(self, n: List[int], t: int) -> int:
+        l = 0 
+        r = len(n) - 1
+        while l <= r :
+            m = (l+r) // 2 
+            if n[m] == t :
+                return m
+            if n[l] <= n[m] :
+                if n[l] <= t <= n[m] :
+                    r = m-1
+                else :
+                    l = m +1
+            else :
+                if n[m] <= t <= n[r]:
+                    l = m+1
+                else :
+                    r = m-1
+        return -1
+
+```        
+        
+7. Find Minimum in Rotated Sorted Array
+```python3
+class Solution:
+    def findMin(self, nums: List[int]) -> int:
+        left = 0 
+        right = len(nums) -1 
+        while left<right :
+            mid = (left+right) // 2 
+            if nums[mid] <= nums[right]:
+                right = mid
+            else :
+                left = mid +1
+        return nums[mid]
+```
+8. Find First and Last Position of Element in Sorted Array
+```python3
+class Solution:
+    def searchRange(self, n: List[int], t: int) -> List[int]:
+        ans = []
+        def leftmost(n,t):
+            l, r = 0, len (n) - 1
+            result1 = -1
+            while l <= r:
+                m = (l + r) // 2
+                if n[m] == t:
+                    result1 = m
+                    r = m - 1   
+                elif n[m] < t:
+                    l = m + 1
+                else:
+                    r = m - 1
+            ans.append(result1)
+
+        def rightmost(n,t):
+            l, r = 0, len (n) - 1
+            result2 = -1
+            while l <= r:
+                m = (l + r) // 2
+                if n[m] == t:
+                    result2 = m
+                    l = m + 1   
+                elif n[m] < t:
+                    l = m + 1
+                else:
+                    r = m - 1
+            ans.append(result2)
+        leftmost(n,t)
+        rightmost(n,t)
+        return ans           
+```
+
+9. Koko Eating Bananas 
+```python3
+class Solution:
+    def minEatingSpeed(self, piles: List[int], h: int) -> int:
+        def check(mid) :
+            time = 0 
+            for bananas in piles :
+                time += (bananas+mid-1) // mid
+            if time <= h: 
+                return True
+            else :
+                return False
+
+        lo = 1 
+        hi = max(piles)
+        speed = -1
+        while lo <= hi :
+            mid = (lo+hi) // 2 
+            if check(mid):
+                speed = mid 
+                hi = mid - 1
+            else :
+                lo = mid + 1
+                
+        return speed
+
+        
+```
+10. Capacity To Ship Packages Within D Days
+```python3
+class Solution:
+    def shipWithinDays(self, weights: List[int], days: int) -> int:
+        def check(mid):
+            day_count = 1
+            total = 0
+            for w in weights :
+                if total + w > mid :
+                    day_count += 1
+                    total = w
+                else :
+                    total+=w
+            return day_count <= days 
+
+
+        lo = max(weights)
+        hi = sum(weights)
+        cap = -1
+
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            if check(mid):
+                cap = mid
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        return cap
+```
+*** Q9 , Q10 are bookmarked
         

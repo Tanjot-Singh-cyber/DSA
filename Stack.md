@@ -178,7 +178,76 @@ class Solution:
         return result
 ```
 **Monotonic stack** — first pattern where the stack holds *indices*, not values, because the answer needed is a distance (today's index minus the waiting day's index), not just a value. `stack[-1]` gives the index on top; `temperatures[stack[-1]]` looks up that day's actual temperature through the index. Every index gets pushed exactly once and popped at most once, so this is O(n) overall despite the nested loop appearance.
-
+### 7. Evaluate Reverse Polish Notation
+```python
+class Solution:
+    def evalRPN(self, tokens: List[str]) -> int:
+        stack = []
+        for el in tokens:
+            if el == "+":
+                x = stack.pop()
+                y = stack.pop()
+                stack.append(int(x + y))
+            elif el == "-":
+                x = stack.pop()
+                y = stack.pop()
+                stack.append(int(y - x))
+            elif el == "*":
+                x = stack.pop()
+                y = stack.pop()
+                stack.append(int(x * y))
+            elif el == "/":
+                x = stack.pop()
+                y = stack.pop()
+                stack.append(int(y / x))
+            else:
+                stack.append(int(el))
+        return stack[-1]
+```
+Numbers get pushed; operators pop the two most recent values and push the result back. For non-commutative operators (`-`, `/`), order matters: `x` is popped first (more recent = second operand), `y` second (earlier = first operand), so the operation is `y - x` / `y / x`, not the reverse. `int(y/x)` truncates toward zero (matches expected RPN behavior for negative results), unlike `y // x` which floors.
+ 
+### 8. Next Greater Element I
+```python
+class Solution:
+    def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        stack = []
+        next_greater = {}
+ 
+        for num in nums2:
+            while stack and num > stack[-1]:
+                prev = stack.pop()
+                next_greater[prev] = num
+            stack.append(num)
+ 
+        result = []
+        for num in nums1:
+            result.append(next_greater.get(num, -1))
+        return result
+```
+Two separate passes: (1) monotonic stack over `nums2` alone builds a complete `value -> next greater value` map — `nums1` is irrelevant during this pass, every element of `nums2` must be tracked regardless of whether it's in `nums1`, since it may be needed to resolve an earlier element's answer. (2) look up each `nums1` element in the map, defaulting to `-1` via `.get(num, -1)` for elements that never found a match (still sitting in the stack at the end).
+ 
+### 9. Next Greater Element II — BOOKMARKED, not yet closed
+Circular array version — same monotonic stack as NGE I, but:
+- Push **indices** (not values) since answers go directly into a `result` array (single array, no map needed, similar to Daily Temperatures).
+- Simulate wrap-around by looping `i` from `0` to `2*len(nums)-1`, accessing `nums[i % len(nums)]` each time — this walks the array twice without physically duplicating it.
+- Comparison inside the while loop must look up `nums[stack[-1]]` (stack holds indices), re-checked fresh each iteration of the while loop (not cached in a stale variable before the loop).
+Skeleton discussed so far (not yet debugged to a final passing version):
+```python
+class Solution:
+    def nextGreaterElements(self, nums: List[int]) -> List[int]:
+        stack = []
+        result = [-1] * len(nums)
+        for i in range(0, 2 * len(nums)):
+            idx = i % len(nums)
+            num = nums[idx]
+            while stack and num > nums[stack[-1]]:
+                pop_idx = stack.pop()
+                result[pop_idx] = num
+            stack.append(idx)
+        return result
+```
+Resume here next session — trace this version on `nums=[1,2,1]` (expected `[2,-1,2]`) to confirm correctness before moving on.
+ 
 ---
 
 ## Key Takeaways

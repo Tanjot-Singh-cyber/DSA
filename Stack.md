@@ -45,8 +45,8 @@ def stack_pattern(arr):
 1. Daily Temperatures ✅
 2. Evaluate Reverse Polish Notation ✅
 3. Next Greater Element I ✅
-4. Next Greater Element II (bookmarked — in progress)
-5. Decode String
+4. Next Greater Element II ✅
+5. Decode String ✅
 6. Asteroid Collision
 2. Evaluate Reverse Polish Notation
 3. Next Greater Element I / II
@@ -232,13 +232,11 @@ class Solution:
 ```
 Two separate passes: (1) monotonic stack over `nums2` alone builds a complete `value -> next greater value` map — `nums1` is irrelevant during this pass, every element of `nums2` must be tracked regardless of whether it's in `nums1`, since it may be needed to resolve an earlier element's answer. (2) look up each `nums1` element in the map, defaulting to `-1` via `.get(num, -1)` for elements that never found a match (still sitting in the stack at the end).
 
-### 9. Next Greater Element II — BOOKMARKED, not yet closed
+### 9. Next Greater Element II
 Circular array version — same monotonic stack as NGE I, but:
 - Push **indices** (not values) since answers go directly into a `result` array (single array, no map needed, similar to Daily Temperatures).
 - Simulate wrap-around by looping `i` from `0` to `2*len(nums)-1`, accessing `nums[i % len(nums)]` each time — this walks the array twice without physically duplicating it.
 - Comparison inside the while loop must look up `nums[stack[-1]]` (stack holds indices), re-checked fresh each iteration of the while loop (not cached in a stale variable before the loop).
-
-Skeleton discussed so far (not yet debugged to a final passing version):
 ```python
 class Solution:
     def nextGreaterElements(self, nums: List[int]) -> List[int]:
@@ -253,7 +251,33 @@ class Solution:
             stack.append(idx)
         return result
 ```
-Resume here next session — trace this version on `nums=[1,2,1]` (expected `[2,-1,2]`) to confirm correctness before moving on.
+
+### 10. Decode String
+Nested-bracket string building — same "push context before diving into a nested section" family as bracket matching, but instead of just validating, you're accumulating a result at each level.
+- Track two running variables: `curr_str` (string built so far in the current context) and `curr_num` (multi-digit repeat count, built via `curr_num = curr_num*10 + int(char)` since numbers can have more than one digit).
+- On `[`: push `(curr_str, curr_num)` as a pair, then reset both to start fresh for the nested content.
+- On `]`: pop the saved pair `(prev_str, repeat_count)`, then combine: `curr_str = prev_str + curr_str * repeat_count` — glue the outer context's string back onto the front of the newly-repeated inner content.
+- On a letter: just append it to `curr_str`.
+```python
+class Solution:
+    def decodeString(self, s: str) -> str:
+        stack = []
+        curr_str = ""
+        curr_num = 0
+        for char in s:
+            if char.isdigit():
+                curr_num = curr_num * 10 + int(char)
+            elif char == "[":
+                stack.append((curr_str, curr_num))
+                curr_str = ""
+                curr_num = 0
+            elif char == "]":
+                poped_str, poped_num = stack.pop()
+                curr_str = poped_str + curr_str * poped_num
+            else:
+                curr_str = curr_str + char
+        return curr_str
+```
 
 ---
 

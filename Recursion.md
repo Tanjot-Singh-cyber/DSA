@@ -31,8 +31,6 @@ Split into two clearly separated phases — never mix "pending" and "resolved" i
 | fn(1) | combine with fn(0) | value |
 | ... | ... | ... |
 
-## Shapes covered (5 reps, Aug 2026)
-
 ### 1. Single recursive call, "build going up" (factorial / sum(n) style)
 ```python
 def sum(n):

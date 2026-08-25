@@ -52,7 +52,7 @@ class Solution:
         inorder(root)
         return res
 ```
-``` 
+``` python
     def preorderTraversal(self, root):
         res = []
         def preorder(root):
@@ -64,7 +64,7 @@ class Solution:
         preorder(root)
         return res
  ```
-```
+```python
     def postorderTraversal(self, root):
         res = []
         def postorder(root):
@@ -76,7 +76,7 @@ class Solution:
         postorder(root)
         return res
  ```
-```
+```python
     def levelOrder(self, root):
         from collections import deque
         if root is None:

@@ -98,4 +98,35 @@ class Solution:
 ```
  
 **BFS key trick**: `level_size = len(q)` — freeze the queue's size *before* the for-loop starts. Children get pushed *during* the loop, but the loop only runs `level_size` times, so it stops exactly at the level boundary, before touching next-level nodes.
+
+  
+## Combine-style problems solved (in order)
  
+### 1. Maximum Depth — LC 104 (numeric combine)
+```python
+class Solution:
+    def maxDepth(self, root):
+        if root is None:
+            return 0
+        left_depth = self.maxDepth(root.left)
+        right_depth = self.maxDepth(root.right)
+        return max(left_depth, right_depth) + 1
+```
+- A leaf returns **1** (not 0) — only `None` returns 0. Common trip-up.
+- Story: "I'm however tall my taller child is, plus 1 for me."
+### 2. Same Tree — LC 100 (boolean-AND combine, two trees)
+```python
+class Solution:
+    def isSameTree(self, p, q):
+        if p is None and q is not None:
+            return False
+        if q is None and p is not None:
+            return False
+        if q is None and p is None:
+            return True
+        left = self.isSameTree(p.left, q.left)
+        right = self.isSameTree(p.right, q.right)
+        return (p.val == q.val) and left and right
+```
+- Takes **two** roots, walks both trees in lockstep.
+- All 3 conditions (value match + left match + right match) must hold → `and`.
